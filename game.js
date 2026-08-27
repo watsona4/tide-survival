@@ -48,6 +48,7 @@ const WAVE_WARNING_TIME = 1.5;
 
 let waveTimer = WAVE_INTERVAL;
 let activeWave = null;
+let wavesSurvived = 0;
 
 let audioCtx = null;
 function playAlarm(kind) {
@@ -179,6 +180,7 @@ function update(dt) {
         damageMudWalls(Infinity);
         ageRockPiles();
       }
+      wavesSurvived += 1;
       activeWave = null;
     }
   }
@@ -333,6 +335,13 @@ function renderSandMeter() {
   renderMeter('Rock', rock, ROCK_MAX, 20, canvas.height - 40, '#9a9a9a');
 }
 
+function renderWavesSurvived() {
+  ctx.fillStyle = '#e6f6ff';
+  ctx.font = 'bold 20px sans-serif';
+  ctx.textAlign = 'right';
+  ctx.fillText(`Waves survived: ${wavesSurvived}`, canvas.width - 20, 34);
+}
+
 function renderGame(time) {
   ctx.fillStyle = '#0a1a24';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -349,6 +358,7 @@ function renderGame(time) {
   renderRockPiles();
   renderWaveWarning();
   renderSandMeter();
+  renderWavesSurvived();
 }
 
 function render(time) {
