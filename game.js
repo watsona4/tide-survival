@@ -41,6 +41,54 @@ canvas.addEventListener('auxclick', (e) => {
   if (e.button === 1) e.preventDefault();
 });
 
+const LONG_PRESS_MS = 500;
+const LONG_PRESS_MOVE_TOLERANCE = 10;
+let touchState = null;
+
+function getTouchPos(touch) {
+  const rect = canvas.getBoundingClientRect();
+  return { x: touch.clientX - rect.left, y: touch.clientY - rect.top };
+}
+
+canvas.addEventListener('touchstart', (e) => {
+  if (state === 'title') {
+    e.preventDefault();
+    startGame();
+    return;
+  }
+  if (state !== 'playing') return;
+  e.preventDefault();
+
+  const pos = getTouchPos(e.changedTouches[0]);
+  touchState = { x: pos.x, y: pos.y, longPressed: false };
+  touchState.timer = setTimeout(() => {
+    touchState.longPressed = true;
+    handleMudBuildClick(touchState.x, touchState.y);
+  }, LONG_PRESS_MS);
+}, { passive: false });
+
+canvas.addEventListener('touchmove', (e) => {
+  if (!touchState) return;
+  const pos = getTouchPos(e.changedTouches[0]);
+  if (Math.hypot(pos.x - touchState.x, pos.y - touchState.y) > LONG_PRESS_MOVE_TOLERANCE) {
+    clearTimeout(touchState.timer);
+    touchState = null;
+  }
+}, { passive: true });
+
+canvas.addEventListener('touchend', (e) => {
+  if (!touchState) return;
+  e.preventDefault();
+  clearTimeout(touchState.timer);
+  if (!touchState.longPressed) handleBuildClick(touchState.x, touchState.y);
+  touchState = null;
+}, { passive: false });
+
+canvas.addEventListener('touchcancel', () => {
+  if (touchState) clearTimeout(touchState.timer);
+  touchState = null;
+});
+
 const WAVE_INTERVAL = 1;
 const KILLER_WAVE_CHANCE = 0.01;
 const DANGER_WAVE_CHANCE = 0.2;
