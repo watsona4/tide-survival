@@ -231,7 +231,8 @@ function draw() {
     const [dx, dy] = worldToScreen(b.door.x, b.door.y);
     ctx.fillStyle = 'rgba(60,40,20,0.8)';
     ctx.fillRect(dx + z * 0.3, dy - z * 0.15, z * 0.4, z * 0.3);
-    if (z >= 7) {
+    // Houses are dense, so their labels wait for a closer zoom.
+    if (z >= (b.type === 'house' ? 11 : 7)) {
       ctx.fillStyle = 'rgba(255,255,255,0.85)';
       ctx.font = `${Math.max(9, z * 1.1)}px system-ui, sans-serif`;
       ctx.textAlign = 'center';
@@ -274,10 +275,14 @@ function draw() {
       ctx.arc(sx, sy, r + 3, 0, Math.PI * 2);
       ctx.stroke();
       if (z >= 5) {
-        ctx.fillStyle = '#fff';
-        ctx.font = `${Math.max(10, z * 1.2)}px system-ui, sans-serif`;
+        const size = Math.max(10, z * 1.2);
+        ctx.font = `${size}px system-ui, sans-serif`;
         ctx.textAlign = 'center';
-        ctx.fillText(p.name, sx, sy - r - 6);
+        const tw = ctx.measureText(p.name).width;
+        ctx.fillStyle = 'rgba(0,0,0,0.7)';
+        ctx.fillRect(sx - tw / 2 - 4, sy - r - 8 - size, tw + 8, size + 4);
+        ctx.fillStyle = '#fff';
+        ctx.fillText(p.name, sx, sy - r - 8);
       }
     }
   }
